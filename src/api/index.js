@@ -1,122 +1,141 @@
 import axios from 'axios'
-import { Message } from 'element-ui'
 
-// Create axios instance
-const apiClient = axios.create({
-  baseURL: '/api',
+// 创建axios实例
+const api = axios.create({
+  baseURL: process.env.VUE_APP_API_BASE_URL || '/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json'
   }
 })
 
-// Request interceptor
-apiClient.interceptors.request.use(
+// 请求拦截器
+api.interceptors.request.use(
   config => {
-    // Add loading or auth token here if needed
+    // 在发送请求之前做些什么
+    console.log('Request:', config.method?.toUpperCase(), config.url)
     return config
   },
   error => {
+    // 对请求错误做些什么
+    console.error('Request Error:', error)
     return Promise.reject(error)
   }
 )
 
-// Response interceptor
-apiClient.interceptors.response.use(
+// 响应拦截器
+api.interceptors.response.use(
   response => {
+    // 对响应数据做点什么
+    console.log('Response:', response.status, response.config.url)
     return response.data
   },
   error => {
-    const message = error.response?.data?.message || error.response?.data || error.message || 'Network Error'
-    Message.error(message)
+    // 对响应错误做点什么
+    console.error('Response Error:', error.response?.status, error.response?.data)
     return Promise.reject(error)
   }
 )
 
-// Application APIs
+// Application API
 export const applicationApi = {
-  // Get all applications
-  getAll () {
-    return apiClient.get('/applications')
+  // 获取所有应用
+  getAll() {
+    return api.get('/applications')
   },
 
-  // Get application by ID
-  getById (id) {
-    return apiClient.get(`/applications/${id}`)
+  // 根据ID获取应用
+  getById(id) {
+    return api.get(`/applications/${id}`)
   },
 
-  // Get application by number
-  getByNumber (number) {
-    return apiClient.get(`/applications/number/${number}`)
+  // 创建应用
+  create(data) {
+    return api.post('/applications', data)
   },
 
-  // Create new application
-  create (data) {
-    return apiClient.post('/applications', data)
+  // 更新应用
+  update(id, data) {
+    return api.put(`/applications/${id}`, data)
   },
 
-  // Update application
-  update (id, data) {
-    return apiClient.put(`/applications/${id}`, data)
+  // 删除应用
+  delete(id) {
+    return api.delete(`/applications/${id}`)
   },
 
-  // Update root section
-  updateRootSection (id, rootSection) {
-    return apiClient.put(`/applications/${id}/root-section`, { rootSection })
-  },
-
-  // Delete application
-  delete (id) {
-    return apiClient.delete(`/applications/${id}`)
+  // 更新Root Section
+  updateRootSection(id, rootSectionJson) {
+    return api.put(`/applications/${id}/root-section`, {
+      rootSection: rootSectionJson
+    })
   }
 }
 
-// Submission Unit APIs
+// Submission Unit API
 export const submissionUnitApi = {
-  // Get all submission units
-  getAll () {
-    return apiClient.get('/submission-units')
+  // 获取所有提交单元
+  getAll() {
+    return api.get('/submission-units')
   },
 
-  // Get submission unit by ID
-  getById (id) {
-    return apiClient.get(`/submission-units/${id}`)
+  // 根据应用ID获取提交单元
+  getByAppId(appId) {
+    return api.get(`/submission-units/by-app/${appId}`)
   },
 
-  // Get submission units by application ID
-  getByAppId (appId) {
-    return apiClient.get(`/submission-units/by-app/${appId}`)
+  // 根据ID获取提交单元
+  getById(id) {
+    return api.get(`/submission-units/${id}`)
   },
 
-  // Get submission unit by app ID and sequence
-  getByAppIdAndSequence (appId, sequenceNum) {
-    return apiClient.get(`/submission-units/by-app/${appId}/sequence/${sequenceNum}`)
+  // 创建提交单元
+  create(data) {
+    return api.post('/submission-units', data)
   },
 
-  // Create new submission unit
-  create (data) {
-    return apiClient.post('/submission-units', data)
+  // 更新提交单元
+  update(id, data) {
+    return api.put(`/submission-units/${id}`, data)
   },
 
-  // Update submission unit
-  update (id, data) {
-    return apiClient.put(`/submission-units/${id}`, data)
+  // 删除提交单元
+  delete(id) {
+    return api.delete(`/submission-units/${id}`)
   },
 
-  // Update CoU data
-  updateCouData (id, couData) {
-    return apiClient.put(`/submission-units/${id}/cou-data`, { couData })
+  // 更新CoU数据（替换整个数组）
+  updateCouData(id, couData) {
+    return api.put(`/submission-units/${id}/cou-data`, {
+      couData: couData
+    })
   },
 
-  // Delete submission unit
-  delete (id) {
-    return apiClient.delete(`/submission-units/${id}`)
+  // 添加单个CoU操作
+  addCouOperation(id, couOperation) {
+    return api.post(`/submission-units/${id}/cou-operations`, couOperation)
   },
 
-  // Create sample CoU data
-  createSampleCouData (data) {
-    return apiClient.post('/submission-units/sample-cou-data', data)
+  // 获取所有CoU操作
+  getCouOperations(id) {
+    return api.get(`/submission-units/${id}/cou-operations`)
+  },
+
+  // 删除CoU操作
+  removeCouOperation(id, couId) {
+    return api.delete(`/submission-units/${id}/cou-operations/${couId}`)
+  },
+
+  // 获取示例CoU数据
+  getSampleCouData(operationType, nodeId, documentPath) {
+    return api.get('/submission-units/sample-cou-data', {
+      params: {
+        operationType,
+        nodeId,
+        documentPath
+      }
+    })
   }
 }
 
-export default apiClient
+export default api

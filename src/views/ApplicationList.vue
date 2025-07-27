@@ -128,10 +128,10 @@ export default {
   computed: {
     filteredApplications () {
       let filtered = [...this.applications]
-
+      
       // Filter by search criteria
       if (this.searchForm.appNumber) {
-        filtered = filtered.filter(app =>
+        filtered = filtered.filter(app => 
           app.appNumber.toLowerCase().includes(this.searchForm.appNumber.toLowerCase())
         )
       }
@@ -142,9 +142,8 @@ export default {
         filtered = filtered.filter(app => app.status === this.searchForm.status)
       }
 
-      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
       this.total = filtered.length
-
+      
       // Pagination
       const start = (this.currentPage - 1) * this.pageSize
       const end = start + this.pageSize
@@ -253,3 +252,4 @@ export default {
   margin-top: 20px;
 }
 </style>
+

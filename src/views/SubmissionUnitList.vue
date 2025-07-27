@@ -138,7 +138,6 @@ export default {
   computed: {
     filteredSubmissionUnits () {
       let filtered = [...this.submissionUnits]
-
       // Filter by search criteria
       if (this.searchForm.appId) {
         filtered = filtered.filter(su => su.appId === this.searchForm.appId)
@@ -150,9 +149,7 @@ export default {
         filtered = filtered.filter(su => su.status === this.searchForm.status)
       }
 
-      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
       this.total = filtered.length
-
       // Pagination
       const start = (this.currentPage - 1) * this.pageSize
       const end = start + this.pageSize

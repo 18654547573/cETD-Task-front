@@ -144,8 +144,11 @@ export default {
     async submitForm () {
       try {
         await this.$refs.applicationForm.validate()
+        
         this.loading = true
+        
         if (this.isEdit) {
+          // Update application
           const updateData = {
             appNumber: this.form.appNumber,
             appType: this.form.appType,
@@ -165,7 +168,7 @@ export default {
           this.$message.success('创建成功')
           this.$store.dispatch('addApplication', data)
         }
-
+        
         this.$router.push('/applications')
       } catch (error) {
         if (error.message !== 'validation failed') {
@@ -204,7 +207,7 @@ export default {
         this.$message.info('根节点结构为空')
         return
       }
-
+      
       if (isValidJson(this.form.rootSection)) {
         this.$message.success('JSON格式有效')
       } else {
@@ -251,3 +254,4 @@ export default {
   margin-right: 12px;
 }
 </style>
+

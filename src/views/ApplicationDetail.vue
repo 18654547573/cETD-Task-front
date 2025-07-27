@@ -27,8 +27,20 @@
 
         <!-- Root Section -->
         <div class="section-block">
-          <h3>根节点结构</h3>
-          <div class="json-viewer">{{ formatJson(application.rootSection) }}</div>
+          <div class="section-header">
+            <h3>eCTD 4.0 结构 ToC</h3>
+            <el-button size="small" @click="toggleTocView">
+              {{ showTocTree ? '显示JSON' : '显示树形结构' }}
+            </el-button>
+          </div>
+          
+          <div v-if="showTocTree" class="toc-tree-container">
+            <ectd-toc-viewer 
+              :root-section="application.rootSection" 
+              @toc-updated="handleTocUpdated"
+            />
+          </div>
+          <div v-else class="json-viewer">{{ formatJson(application.rootSection) }}</div>
         </div>
 
         <!-- Submission Units -->
@@ -39,6 +51,7 @@
               <i class="el-icon-plus"></i> 新建提交单元
             </el-button>
           </div>
+          
           <el-table
             v-loading="submissionUnitsLoading"
             :data="submissionUnits"
@@ -83,9 +96,13 @@
 <script>
 import { applicationApi, submissionUnitApi } from '@/api'
 import { formatDate, formatDateOnly, getStatusText, formatJson } from '@/utils'
+import EctdTocViewer from '@/components/EctdTocViewer.vue'
 
 export default {
   name: 'ApplicationDetail',
+  components: {
+    EctdTocViewer
+  },
   props: {
     id: {
       type: String,
@@ -97,7 +114,8 @@ export default {
       loading: false,
       submissionUnitsLoading: false,
       application: null,
-      submissionUnits: []
+      submissionUnits: [],
+      showTocTree: true
     }
   },
   created () {
@@ -150,6 +168,22 @@ export default {
       this.$router.push(`/submission-units/${row.suId}/edit`)
     },
 
+    toggleTocView () {
+      this.showTocTree = !this.showTocTree
+    },
+
+    async handleTocUpdated (updatedTocData) {
+      try {
+        const rootSectionJson = JSON.stringify(updatedTocData)
+        await applicationApi.updateRootSection(this.id, rootSectionJson)
+        this.application.rootSection = rootSectionJson
+        this.$message.success('Root Section更新成功')
+      } catch (error) {
+        console.error('Failed to update root section:', error)
+        this.$message.error('Root Section更新失败')
+      }
+    },
+
     formatDate,
     formatDateOnly,
     getStatusText,
@@ -197,3 +231,12 @@ export default {
   margin: 0;
 }
 </style>
+
+
+.toc-tree-container {
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+  height: 500px;
+  overflow: hidden;
+}
+

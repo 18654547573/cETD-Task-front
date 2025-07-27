@@ -265,7 +265,6 @@ export default {
           this.$message.success('创建成功')
           this.$store.dispatch('addSubmissionUnit', data)
         }
-
         this.$router.push('/submission-units')
       } catch (error) {
         if (error.message !== 'validation failed') {
@@ -311,18 +310,15 @@ export default {
         this.$message.info('CoU数据为空')
         return
       }
-
       if (isValidJson(this.form.couData)) {
         this.$message.success('JSON格式有效')
       } else {
         this.$message.error('JSON格式无效')
       }
     },
-
     generateSampleCouData () {
       this.sampleDialogVisible = true
     },
-
     async confirmGenerateSample () {
       try {
         const data = await submissionUnitApi.createSampleCouData({
